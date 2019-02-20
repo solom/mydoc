@@ -1,4 +1,4 @@
 # DOC Project for little help 
-## My Documentation on progrmming language and other stuff
-### F# 
+## My Documentation for progrmming language and other stuff
+### F# DoC
 ### Haskell DoC
