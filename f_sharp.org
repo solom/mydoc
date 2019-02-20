@@ -1,0 +1,485 @@
+Подсказки по F#
+
+* Конструкции языка
+** Комментарии
+   (*
+       Длинный комментарий
+   *)
+   // Короткий комментарий
+   /// Комментарий чтобы была подсказка 
+   /// Рсполагается прямо над функцией
+   /// При наведении курсора на функцию он тоже показывается
+   let rec gcd x y =
+       if y = 0 then x
+       else gcd y (x % y)
+** Функция main
+   [<EntryPoint>] - // Точка входа
+   let main (args : string[]) =
+       ... args.length
+   ....
+   // Program.fs
+
+   [<EntryPoint>]
+   let main (args : string[]) =
+       let numbers = [1..10]
+       let square = x * x
+       let squaredNumbers = List.map square numbers
+       printfn "SquaredNumbers = %A" squaredNumbers
+       printfn "Press any key to contionue"
+       Console.ReadKey(True) |> ignore
+       0
+
+** Присваивание
+   | let (x : float) = 1.0 | // (x : float) указание типа но можно и без него |
+   | let x = 1.0           | // Компилятор сам попытается узнать, что за тип  |
+** Основные типы
+*** Простые типы
+    | byte       | uy              | 0 to 255        | System.Byte                            |
+    | sbyte      | y               | -128 to 127     | System.SByte                           |
+    | int16      | s               | -32768 to 32767 | System.Int16                           |
+    |            |                 |                 |                                        |
+    | uint16     | us              | 0 to 65535      | System.Uint16                          |
+    | int, int32 | -2^31 to 2^31-1 | System.Int32    |                                        |
+    | uint32     | u               | 0 to 2^32-1     | System.UInt32                          |
+    | int64      | L               | -2^63 to 2 63-1 | System.Int64                           |
+    | uint64     | UL              | 0 to 2^64-1     | System.UInt64                          |
+    | float      |                 |                 | System.Double (15 значащих цифр)       |
+    | float32    | f               |                 | System.Single (7 значащих цифр)        |
+    | decimal    | M               |                 | System.Decimal (28 цифр после запятой) |
+    | bigint     | I               |                 | System.Numerics.BigInteger             |
+    // имена основных типов аналогичны именам функций преобразования в них
+    let (st : string) = "abcdef"
+    st.[0] = 'a'
+    && || not - Операции с булевыми значениями true и false
+*** Фундаментальные типы
+    | unit       | пустой тип                    |
+    | int, float | определённый (конкретный) тип |
+    | 'a, 'b ... | обобщённый тип                |
+    | 'a -> 'b   | функция                       |
+    | 'a * 'b    | кортеж                        |
+    | 'a list    | список обощённых типов        |
+    | 'a option  | Some None - аналогично Maybe  |
+*** Немного о списках:
+**** Определения
+    | let a = [1;2;3]          | отдельные члены  |
+    | let a = [1..10]          | диапазон         |
+    | let a  = [0 .. 10 .. 50] | диапазон с шагом |
+**** Генераторы:
+     [
+         yield 1
+	 yield -1
+	 yield 3
+     ] 
+     [
+         for i in 1 .. 10 -> i * 2 // список двойных значений от 1 до 10
+     ]
+     [
+         for i in 1 .. 10 do
+	     yield i // примитивное, но в теле цикла можно что угодно + конструкция do
+     ]
+*** Последовательности 
+**** (Seq)
+     Тип данных, напоминающий список, который не вычисляется и может быть бесконечным
+     Аналог - xrange у python
+     Также псевдоним интерфейса System.Collections.Generic.IEnumerable<'a> у .NET
+     совместима с типом Array
+     
+     let seqOfNumbers = seq { 1..5 }
+     seqOfNumbers |> Seq.iter (printfn "%d")
+     
+     Последовательность всех 32-х разрядных чисел. СО списком так не выйдет.
+     let allInt = seq { for i = 0 to System.Int32.MaxValue -> i  }
+     
+     Достать все файлы в тч из подпапок
+     
+     let allFiles basePath = 
+     seq {
+     yield! Directory.GetFiles(basePath)
+     
+     for subdir in Directory.GetDirectories(basePath) do
+     yield! allFiles subdir
+     }
+      см. пункт "что-то из библиотек"
+**** (Array) - массивы
+     создание:
+
+     let arrVal = [|1;2;3;4|]
+     let arrVal = [| for i in 1..4 -> i |]
+     Array.init x (fun m -> m) // инициализировать массив x длины от 0 до x членами 0 .. x
+     let arrEmpty : int [] = Array.zeroCreate 3 // инициализировать 3-х членный массив нулями
+
+     обращения к членам: 
+
+     arrVal.[n] - n-ный член
+     arrVal.[2..4] - срез с 2 по 4
+     arrVal.[..4] - срез с 0 по 4
+     arrVal.[2..] - срез с 2 по последний член
+     arrVal.[*] - весь массив(копия)
+
+     Array.exists ('a -> bool) -> 'a[] -> bool // проверить, есть ли такой член 
+     Массивы эквивалентны только если равны размерность длина и члены
+     ....
+     Некоторые функции
+     | Array.length     | длиня (свойство Length)               |
+     | Array.init       | (int -> (int -> 'a) -> a[]            |
+     | Array.zeroCreate | int -> 'a[]                           |
+     | Array.exists     | ('a -> bool) -> 'a[] -> bool          |
+     | Array.partition  | ('a -> bool) -> 'a[] -> ('a[] * 'a[]) |
+     | Array.tryFind    | (('a -> bool) -> 'a [] -> 'a option)  |
+     | Array.findIndex  | ------------"--------- -> int option  |
+     | ..fold map iter  | like List                             |
+     | Array.iteri      | ...(fun idx chr -> ...)               | 
+     ....
+     Многомерные массивы
+     let arr2D : float [,] = Array2D.zeroCreate 3 3 
+     arr2D.[0,0] <- 1.0
+     arr2D.[*, 1..2] // срез Все строки для столбцов 1 и 2
+     Невыровненные массивы
+     let jaggedArr :int[][] = Array.zeroCreate 3
+     jaggedArr.[0] <- Array.init 1 (fun x -> x)
+     jaggedArr.[1] <- Array.init 2 (fun x -> x) // и так далее
+**** (List<'T>) - не путать с list 
+     open System.Collection.Generic
+     let some = new List<string>();
+     Функции:
+     | Add      | добавляет в конец списка                 |
+     | Clear    | очищает список                           |
+     | Contains | есть ли такой элемент                    |
+     | Count    | всего сколько элементов                  |
+     | IndexOf  | индекс искомого элемента                 |
+     | Insert   | вставляет в позицию с указанным индексом |
+     | Remove   | удаляет                                  |
+     | RemoveAt | удаляет с указанынм индексом             | 
+**** (Dictionary<'K,'V>) - словарик (хэш) Data.Map
+     open System.Collections.Generic
+     let hDic = new Dictionary<string, int>()
+     hDic.Add("Alex", 45) // добавляем
+     hDic.Add ("Kotya", 40)
+     hDic.["Kotya"] // получаем
+     | Add           | ('k * 'v) -> unit              |
+     | Clear         | очистить                       |
+     | ContainsKey   | наличие ключа                  |
+     | ContainsValue | ... значения                   |
+     | Count         | количество элементов           |
+     | Remove        | удалить элемент с таким ключом |
+**** (HashSet<'T>)
+     // Коллекция для быстрого поиска зачений 
+     // Значения уникальные
+     open System.Collection.Generic
+     let hSet = new HashSet<int>()
+     hSet.Add(1)
+     hSet.Add(2)
+     hSet.Add(2)
+     hSet.Add(3)
+     hSet;;
+     val it : HashSet<int> = seq [1; 2; 3]
+     ....
+     | Add           | ‘a -> unit       | Добавляет новый элемент в коллекцию типа HashSet.                                                                                           |
+     | Clear         | unit -> unit     | Удаляет все элементы из коллекции типа HashSet.                                                                                             |
+     | Count         | int              | Возвращает количество элементов в коллекции типа HashSet.                                                                                   |
+     | IntersectWith | seq<’a> -> unit  | Обрезает коллекцию типа HashSet так, что остаются только те элементы, которые есть в указанной последовательности.                          |
+     | IsSubsetOf    | seq<’a > -> bool | Определяет, является ли коллекция типа HashSet подмножеством указанной последовательности.                                                  |
+     | IsSupersetOf  | seq<’a > -> bool | Определяет, является ли коллекция типа HashSet надмножеством указанной последовательности.                                                  |
+     | Remove        | ‘a -> bool       | указанный элемент из коллекции.                                                                                                             |
+     | UnionWith     | seq<’a> -> unit  | Изменяет коллекцию типа HashSet так, чтобы она содержала все элементы, которые имеются в данной коллекции и в указанной последовательности. |
+** Функции
+   | let f a b = a + b                 | - обычное присваивание                                                                        |
+   | let f (a : int) (b : int) = a + b | - спецификация типов параметров                                                               |
+   | let f a b : (int) = a + b         | - спецификация возвращаемого значения                                                         |
+   | (fun a -> a + a)                  | - анонимная функция (Лямбда)                                                                  |
+   | let f (x : 'a) = x                | - обобщённая функция, принимающая любой тип, обозначенные переменной a (пишется с апострофом) |
+   | ....let f x =                     |                                                                                               |
+   | ....let f1 x1 = x1 + x            |                                                                                               |
+   | ....f1 5                          | - вложенная функция f1 может видеть x и всё что объявлено внутри f                            |
+   |                                   |                                                                                               |
+** Область видимости
+   let f x =
+       let m = 5
+       x + m       - m видится в пределах функции f (оператор let)
+** Модули
+   module Alpha
+   let x = 5
+
+   ...
+   Aplha.x - обращение к объекту в модуле
+   -----
+   Вложенный модуль:
+
+   module Alpha
+       module Betta = 
+           ....
+	   ....
+** Пространства имён
+   namespace PlaingCards
+       type Suit =
+         .| Spade 
+         .| Club
+	 // PlaingCards.Suit
+** Условные операторы
+   if <выражение bool (a = b || a <> b ...)>
+   then 
+       <true>
+   else
+       <false>
+   ......
+   if ...
+   then
+       if <bool>             - вложенное выражение
+   ...
+   elif                      - иначе если ...
+   ...
+   if x > 5
+   then
+       printf "yes"
+   
+   ()                    - обязательно возвращать пустую монаду если else не предусмотрен
+** Представления hex oct bin
+   let hex = 0xFFFF
+   let oct = 0o7771
+   let bin = 0b000001
+   Символы UNICODE (U16) \u0061 - 'a'
+** Некоторые операторы (степень, остаток)
+   | **   | - Возведение в степень (для  float и float32) |
+   | pown | - Возведение в степень для целых чисел        |
+   | %    | - Деление по модулю (остаток)                 |
+** Битовые операции
+   | "&&&" | - AND    |   
+   | "|||" | - OR     |   
+   | "^^^" | - XOR    |   
+   | "<<<" | - LSHIFT |   
+   | ">>>" | - RSHIFT |   
+** Операции сравнения
+   | < <= > >= = <>   | (последние 2 - равно и не равно) |
+   | compare (-1 0 1) | - меньше равно больше            |
+** Функциональный стиль
+*** композиция
+    5 |> (fun x -> x * x)
+     .|> (fun x -> x + 2) // без точки
+     ...
+     (>>) -> f g x = g (f x) // как & в хаскелл
+     (<<) -> f g x = f (g x) // как . в хаскелл
+     <| - как $ в Хаскелл
+*** сопоставление с образцом
+    match x with // образец может быть и x, y и (x , y, z)
+        .| 2 -> "Five"
+	.| 1 -> "One"
+	.| mm -> переменная по умолчанию в значении x
+	.| _ -> "Да хз что за число" // тоже дефолт
+    ....
+    match x with
+        .| x when x = 0 -> "результат если x = 0"
+    ....
+    match l with
+        .| [] -> 0
+	.| [_] -> 1
+	.| [_;_] -> 2
+	.| hd :: tail -> ...
+    ....
+    match x with
+        .| Some(3) -> ".."
+	.| None -> "..."
+	// так с любым типом
+    ....
+    let rec funListRec = // function используется в анонимных функциях и тож сопоставляется с образцом (почти как в Хаскеле)
+        function
+	.| [] -> 0
+	.| hd :: tail -> 1 + funListRec tail
+    ....
+    let arrDescribe arr = 
+        match arr with
+	    .| null -> "Arr is null"
+	    .| [| |] -> "Arr is Empty
+	    .| [|_;_  |] -> "Arr has two elements"
+*** Размеченные объединения
+    type Suit = 
+        .| Heart
+	.| Diamond
+	... like data Suit = Heart | Diamond ...
+    ....
+    type PlaingCard =
+        .| Ace of Suit
+	... - как data PlaingCard = Ace Suit | ...
+    ....
+    type Statement = 
+        .| Print of string
+	.| IFStmt Expression * Expression * Expression
+    and Expression
+        .| LEssThan of Expression * Expression
+	// взаимно рекурсивные объединяются с помощью and
+    ....
+    type BTree = 
+        .| Node of int * Btree * Btree 
+        .| Empty
+        // рекурсивные типы
+*** Методы и свойства объединений
+    type XXX = 
+    ...
+    ...
+    ...
+        member this.Value =
+            match this with
+                .| Ace(_) -> 11 
+	        ...
+    ...
+    type Vector = { X : float; Y... Z...}
+        member this.Length =
+	    sqrt <| this.X ** 2.0 + this.Y ** 2.0 + this.Z ** 2.0
+*** Записи с параметрами
+    type SomeMan = { First : string; Second : string }
+    let man : SomeMan = {First = "..."; ...}
+    let man = { SomeMan.First = "..."  } // полностью квалифицированное поле
+    man.First - доступ
+    let man2 = { man with Second = "..." } // копирование записи
+*** Ленивость (Lazy)
+    let x = Lazy<int>.Create(fun () -> printfn "..."; 10)
+    let y = Lazy(printfn "..."; x.Value + y.Value)
+    y.Value - вычисляется тока при прямом обращениии
+** Императивный стиль
+*** Функции типа (sizeof)
+    | Unchecked.defaultof<'a> | Значение по умолчанию для типа 'a         |
+    | typeof<'a>              | Возвращает System.Type, опиывающий тип 'a |
+    | sizeof<'a>              | Возвращает размер, выделяемый в стеке     |
+*** Проверка данных ссылочного типа на null (это они такие до инициализации)
+    let isNull = function bull -> true | _-> false
+    Нельзя null присваивать 
+*** Изменение значения
+    используется модификатор mutable при объявлении и значок <-
+    let mutable mes = "some message"
+    mes <- "another message"
+    замыкания с изменяемыми значениями невозможны
+    изменяемые значения не возвращаются из функции (только копия)
+*** Присваивание сложных (ссылочных) типов:
+    let x = [| 0 |] // массив
+    let y = x // ссылается на то же, что и x
+    x.[0] <- 3
+    // y.[0] также будет равно 3
+*** ref - работа с ссылочными ячейками
+    val ref : 'a -> 'a ref - возвращает копию, которая находится в ссылочной ячейке
+    ! - получаем значение ссылки
+    := - меняем значение ссылки
+    ...
+    let drinkMans = ref ["Alexander"; "Konstantin"; "Alex"]
+    // oops! Alex is not drink!
+    drinkMans := !drinkMans |> List.filter (fun x -> x <> "Alex")
+    ...
+    incr decr - увелчить и уменьшить на 1 ссылочное значение
+*** Изменяемые записи
+    type MutableCar = { ...; Model : string; mutable Miles : int  }
+    let driveForASeason car =
+        let rng = new Random()
+	car.Miles <- car.Miles + rng.Next() % 10000
+*** Массивы 
+    см. "Основные типы"
+*** Циклы
+**** while
+    let mutable i = 0
+    while i < 5 do
+        i <- i + 1
+    (императивный способ)
+**** for
+    for i = 1 to 5 do
+    for i = 5 downto 1 do
+    for i in [1 .. 5] do // любой тип последовательности
+    for Dog(name) in famousPets do // сопоставление с образцом
+    // примечание: отсутствует break и continue. Для этого пользовать while
+*** Исключения
+**** Свойства:
+     Meaasge - описание проблемы
+     Stacktrace - строка со списком всех функций, которые ожидали завершения текущей функции перед исключением
+**** failwithf
+     let divide x y = 
+         if y = 0 then failwithf "Can not dvide %d by zero" x // аналогично printf
+	 else x / y
+**** raise
+     Принимает тип исключения (наследуемый System.Exception) и генерирует
+     исключения этого типа (как failwithf)
+     let divide x y = 
+         if y = 0 then raise <|  System.DivideByZeroException
+	 else x / y
+**** try-catch и with (Обработка)
+     try
+     ...
+         raise <| new ИсключениеОдин()
+     ...
+         raise <| new Исключение2()
+    with
+       .| :? Исключение1 -> ...
+       .| :? Исключение2 as ex -> printfn "...%s" ex.Message
+    ....
+    try
+        ...
+	failwithf "aaaaa"
+    finally
+        ...
+        // действия по освобождению ресурсов. Выполняются всегда
+    Последнее выражение в try должно иметь тот же тип, что и все правила в with 
+    ......
+    let tryFinTest() =
+    try 
+        failwithf "ERRORRRR!!!!"
+    finally
+        printfn "Finslly doing"
+
+
+    let test() = 
+        try 
+            tryFinTest()
+        with
+            ex -> printfn "Message: %s" ex.Message
+**** reraise Повторная генерация
+     ...
+     with
+         .| :? System.OverFlowException
+	 ->  printfn "...."
+	     reraise() 
+**** Собственные типы исключений
+** Тестовый пункт
+   | let f x = x * 2 | - функция возведения в квадрат |
+   | if x > 5        |                                |
+   | then            |                                |
+   | printf "yes"    |                                |
+   | ();             |                                |
+* Что-то из библиотек
+** Разное
+   DateTime.Now.ToString("hh:mm tt")
+   Enum.GetNames( typeof<DayOfWeek> ) - имена дней недели
+   ceil  - округление вверх до ближайшего целого
+   exp   - возведение e в степень
+   floor - округление вниз до ближайшего целого
+   sign  - знак числа
+   log   - натуральный логарифм
+   log10 - десятичный логарифм
+   sqrt cos sin tan pown
+   
+   let (st : string) = "abcdef"
+   String.length st (6)
+   st.Length (6) (с заглавной буквы как метод)
+** (s)printf(n)
+   | printf "<шаблон>" | [переменная]                        |
+   | printfn ...       | добавляет в конце перевод строки \n |
+   | sprinf  ....      | и возвращает строку                 |
+   | ----              | ----                                |
+   | %d %i             | целое                               |
+   | %x %o             | шестнадцатеричное восьмеричное      |
+   | %s                | строка                              |
+   | %f                | вещественное (дес. точка)           |
+   | %c                | символ                              |
+   | %b                | булево                              |
+   | %O                | объект                              |
+   | %A                | значение любого типа                |
+  ** некоторые функции модуля List
+   | List.length       | 'a list -> int                            | длина                                            |
+   | List.head(tail)   | 'a list -> int ('a list)                  | голова или хвост                                 |
+   | List.exisis       | ('a -> bool) -> 'a list -> bool           | удовлетворяет ли условию какой-либо член или нет |
+   | List.rev          | 'a list -> 'a list                        | как reverse                                      |
+   | List.zip          | 'a list -> 'b list -> 'a * list * 'b list | из пары списков кортеж пар xs                    |
+   | List.filter       | ('a -> bool) -> 'a list -> 'a list        | список удовлетворяющих условию                   |
+   | List.partition    | ('a -> bool) -> ('a list * 'a list)       | кортеж из спискоу уд условию и нет               |
+   | List.iter         |                                           | то же что и map только побочное монада mapM_     |
+   | List.fold(Back)   |                                           | левая(правая) свёртка с разнотипными acc и x     |
+   | List.reduce(Back) |                                           | левая(правая) свёртка с однотипными acc и x      |
+** Некоторые функции Seq
+   | Seq.take        | берёт первые n элементов последовательности              |
+   | Seq.unfold      | анредукция ('a -> ('b * 'a) option) -> 'a -> seq<'b>     |
+   | iter, map, fold | аналогично List (с побочкой, обработка каждого, свёртка) |
+  
