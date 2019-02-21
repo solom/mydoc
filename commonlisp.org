@@ -1,0 +1,111 @@
+--- Some helping for Common Lisp ---
+
+* Main documentations
+  http://www.lispworks.com/documentation/HyperSpec/Front/Contents.htm
+* Package manager
+  https://www.quicklisp.org
+* Big resource
+  https://www.cliki.net/
+* Символы (Symbols)
+  #\a #\b - (Letters) буквы
+  (map 'list (lambda (x) x) "abcd") => (#\a #\b #\c #\d)
+* Функции для работы с последовательностями (Functions for sequence)
+** map(cer can ...)
+   (map result-type function first-sequence &rest more-seq)
+   RESULT-TYPE: 'list 'string 'vector
+   (map 'list (lambda (x) x) "abcd") => (#\a #\b #\c #\d)
+   (map 'vector (lambda (x) x) "abcd") => #(#\a #\b #\c #\d)
+   (map 'string (lambda (x) x) "abcd") => "abcd"
+   (lambda (x) x) - as id
+** search
+   (search "what_search" "where_search") => position(num) or nil - simple (см подсказку в slime)
+   (search "aa" "saakhov") => 1 
+   see keys in slime
+** subseq 
+   Выдернуть подстроку (get substring)
+   (subseq "abacab" 0 3) => "aba" 0,1,2 3 - its all
+   (let 
+       ((str "abacab"))
+     (subseq str 0 (length str))) => "abacab"
+** reduce
+   Like foldl foldr in Haskel
+   (reduce #'+ '(1 2 3)) => 6 Like foldl1 by default
+   (reduce #'+ '(1 2 3) :initial-value 10) => 16 Like foldl
+   (reduce #'- '(1 2 3) :from-end t :initial-value 10) => -8 Like foldr
+   (reduce #'- '(1 2 3) :from-end nil :initial-value 10) => 4 Like foldl
+* Итерации (Iteration)
+** loop (in samples)
+   (loop 
+       for i from 0 to 10
+       collect i) => (0 1 2 3 4 5 6 7 8 9 10)
+
+   (loop 
+       for i from 0 to 10  
+       repeat 3
+       collect i) => (0 1 3) 
+
+   (loop
+       for i = 5 then (+ 3 i)
+       repeat 7
+       collect i) => (5 8 11 14 17 20 23)
+
+   (loop 
+       for acc = nil then `(,i) 	      
+       for i from 0 to 7
+       append acc) => (0 1 2 3 4 5 6) 
+       ; append to acc new iteration (append '(1) '(2 3 4 5)) => '*(1 2 3 4 5)
+
+    (loop ; with when
+        for i = 0 then (+ i 2)
+	when (< i 10)
+	do (format t "ECHO: ~a~%" i)) => 
+	;ECHO: 0
+	;ECHO: 2
+	;ECHO: 4
+	;ECHO: 6
+	;ECHO: 8
+	; no stop loop but end of printing
+
+	(loop ; with while
+	      for i = 0 then (+ i 2)
+	      while (< i 10)
+	      do (format t "ECHO: ~a~%" i))
+	      ; ECHO: 0
+	      ; ECHO: 2
+	      ; ECHO: 4
+	      ; ECHO: 6
+	      ; ECHO: 8
+	      ; NIL - this return value (no value)
+	      ; printing calc value and stop loop
+	      
+	(loop 
+	      for i = 0 then (+ i 2)
+	      while (< i 10)
+	      do (format t "ECHO: ~a~%" i)
+	      finally (return i))
+	      ; return  variable i when ending loop
+
+	;; common example:
+	(loop for i from 1 to (compute-top-value)       ; first clause
+	    while (not (unacceptable i))              ; second clause (condition end loop)
+	    collect (square i)                        ; third clause (collect if square i)
+	    do (format t "Working on ~D now" i)       ; fourth clause
+	    when (evenp i)                            ; fifth clause
+              do (format t "~D is a non-odd number" i)
+	      finally (format t "About to exit!"))      ; sixth clause
+* Функция format
+** base
+   (format t "some there") - print to std output
+   (format nil "xxx") - return string
+  
+** string format
+   (let
+       ((str "555"))
+     (format nil "this a ~a" str)) => "this a 555"
+
+   (let
+       ((str "555")
+        (str2 "777"))
+     (format nil "this a ~a and ~a" str str2)) => "this a 555 and 777"
+	 
+   (format t "4 newline: ~4%") => print 4 newline: and as 4 pressed "ENTER"
