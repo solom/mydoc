@@ -109,3 +109,7 @@
      (format nil "this a ~a and ~a" str str2)) => "this a 555 and 777"
 	 
    (format t "4 newline: ~4%") => print 4 newline: and as 4 pressed "ENTER"
+* Some useful
+** macro destructuring-bind
+   (destructuring-bind (a b c) '("alex" "gala" "alina")
+       (format nil "a = ~a b = ~b c = ~a" a b c)) => "a = alex b = gala c = alina"
