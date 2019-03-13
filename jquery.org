@@ -1,0 +1,157 @@
+jQuery (краткое описание) остановился на 2.3.4 (стр 67)
+
+* Базовые селекторы
+  * - любой элемент
+  E - все элементы с именем тэга E
+  E F - все элементы с тэгом F вложенные в элемент с тэгом E
+  E > F - все элементы тэга F, которые прямые потомки тэга E
+  E+F - все элементы тэга F, которым непосредственно предшествует элемент с тэгом E на том же уровне вложенности
+  E~F - все элементы тэга F, которым предшествует любой элемент с тэгом E на том же уровне вложенности
+  E:has(F) - все элементы тэга E, имеющие хотя бы один элемент тэга F
+  E.C - Элементы E класса C
+  E#I - все элементы E с id="I" Если просто #I то *.I
+  E[A] - все элементы E с атрибутом A любого значения
+  E[A=V] - все элементы е с атрибутом A значения V
+  E[A^=V] - все элементы E содержащие атрибут A, значение которого начинается с V
+  E[A$=V] - все элементы E содержащие атрибут A, значение которого кончается на V
+  E[A*=V] - все элементы E содержащие атрибут A, значение которого содержит V
+* Нестандартные селекторы
+  :animated - элементы, управляющие механизмом анимационных эффектов
+  :button - все кнопки input[type=submit] [...=reset] [...=button]
+  :checkbox - элементы-флажки input[type=checkbox]
+  :checked - только отмеченные флажки или переключатели
+  :contains(foo) - элементы, содержащие foo
+  :disabled - неактивные элементы формы
+  :enabled - как выше, но наоборот
+  :file - все элементы типа file
+  :header - только заголовки <h1-6>
+  :hidden - только скрытые элементы
+  :image - тип изображения в формах input[type=image]
+  :not(filter) - инвертирует значение указанного фильтра input:not(:checkbox) - выбор неотмеченных флажков(?) скорее input:not(:selected)
+  :parent - только элементы, включающие в себя дочерние элементы, не пустые
+  :password - элементы типа password
+  :radio - переключатели
+  :reset - кнопки сброса
+  :selected - option, которые были выбраны
+  :submit - все кнопки submit
+  :text - элементы ввода текста
+  :visible - все видимые элементы
+* Функции
+  .size() - количество элементов в обёрнутом наборе $("#someDiv").html('There ' + $('a').size) - число элементов типа <a>
+  .hide() - скрыть элементы
+  $('img[alt]')[0] - первый элемент
+  .get(n) - без параметра - весь массив или n-й его член
+  .add(expression) - добавляет в набор элементы, определённые параметром expression (строка|элемент|массив)
+  .not(expression) - удаление из обёрнутого набора $('img[title]').not('[title*=puppy]')
+  .filter(строка|функция) - фильтрация $('td').filter(function() { return this.innerHTML.match(/^\d+$/) }); вернуть все td с цифрами
+  .slice(begin, end) - срез. begin - первый элемент, который должен быть включён в срез end - последний, который не будет включён в срез
+  * Выбор элементов по позиции
+  :first - первое совпадение на странице (li a:first) - первая ссылка в элементе списка
+  :last - последнее совпадение на странице (li a:first) - последняя ссылка в элементе списка
+  :first-child - первый дочерний элемент li:first-child - первый элемент каждого списка
+  :last-child - последний дочерний элемент li:first-child - последний элемент каждого списка
+  :only-chald - все элементы, являющиеся дочерними
+  :even :odd - чет/нечет элементы на странице li;even - все чётные элементы списка
+  :eq(n) n-й элемент
+  :gt(n) - элементы, расположенные за n-ным элементом (кроме него)
+  :lt(n) - элементы, расположенные перед n-ным элементом (кроме него)
+  (!) :nth-child ведёт отчёт с позиции 1
+  :nth-child(n) - n-й дочерний элемент li:nth-child(2) второй дочерний элемент в каждом списке
+  :nth-child(even|odd) - чётный/нечётный дочерний элемент
+  :nth-child(Xn+Y) - n-й дочерний элемент, вычисляемой по формуле
+** :nth-child(Xn+Y) - n-й дочерний элемент, вычисляемой по формуле
+   li:nth-child(3n) - каждый третий элемент
+   li:nth-child(5n+1) - элемент, следующий за каждым пятым элементом
+* Примеры
+** Разный цвет для чётных и нечётных строк:
+   $("table tr:nth-child(even)").addClass("stripped")
+** Навешиваем событие на кнопку:
+    <button type="button" id="testButton">Click me</button>
+
+    <script type="text/javascript">
+    
+    window.onload = function() {
+       document.getElementById('testButton').onCLick = makeItRed;
+    }
+    
+    function makeItRed () {
+       document.getElementById('sampleElement').style.color = 'red'
+    }
+    </script>
+** Пример селектора 
+    p a - Все элементы a вложенные в элемент p $("p a")
+    $(selector) или jQuery(selector)
+** Постепенное исчезновение
+    $("div.notLongFotThisWorld").fadeOut();
+    $("div.notLongFotThisWorld").fadeOut().addClass("removed"); // чтобы удалить
+** Обращение к элементам:
+    $("someElenent").html("add some text")
+    равнозначно
+    $("someElement")[0].innerHTML = "add some text"
+    
+    для группы елементов:
+
+    $("div.fillMeIn").html("add some text")
+    равнозначно
+    var elements = $("div.fillMeIn")
+    for(i = 0; i < elements.length; i++)
+      elements[i].innerHTML = "add some text"
+** Примеры отбора элементов:
+    $("p:even") - все чётные элементы в <p></p>
+    $("tr:nth-child(1)") - все первые строки во всех таблицах
+    $("body > div") - все элементы div, которые прямые потомки body
+    $("a[href$=pdf]") - все ссылки на pdf
+    $("body > div:has(a)") - все div, прямые потомки body и с сылками
+** Вспомогательные функции:
+    $.trim(someString) = jQuery.trim(someString)
+** Ожидание готовности документа:
+    $(document).ready(function() {
+       ...
+    });
+** Создание контента на лету (вставляем после)
+    $("<p>Hi, there!</p>").insertAfter("#followMe")
+    ...
+    <p id="followMe">Follow me!</p>
+     или
+     $('p').add('<div>Hi, there!</div>')
+** Расширение jQuery
+    $.fn.disable = function() {
+       return this.each(function() {
+          if(typeof this.disabled != "undefined")
+	     this.disabled = true
+	});
+	}
+** Убираем конфликты с либами, пользующие $
+   jQuery.noConflict()
+** Примеры селекторов:
+   a - все элементы-ссылки <a>
+   #specID - все элементы c id="specID"
+   .specClass - все элементы class="specClass"
+   a#specID.specClass - <a id="specID" class="specClass" href="">
+   p a.specClass - <p><a href="..." class="specClass"></p>
+   a[href^=http://] - ссылки. содержащие href, начинающийся с http
+   tag[attr^$=some] - выбрать тэг с атрибутом attr=some ^= - если значение начинается с этого $= кончается этим
+   li:has(a) - элемент li, содержащий элемент a
+
+** Фильтрация с назначением реакции на click
+   $("<div class='foo'>FOO</div><div>NO</div>")
+      .filter(".foo").click(function() {
+         alert("im foo")
+	 }).end().appendTo('#someParentDiv')
+   выбор с классом foo, назначает ему событие на клик
+   далее метод end() для возврата к полному набору и набор
+   присоединяется к делево DOM в конец элемента с id="someParentDiv"
+
+** Выбор по составному условию
+   $('img[alt],img[title]') - элементы, у которых атрибут alt or title
+   иначе:
+   $('img[alt]').add('img[title]')
+   
+   обвести всё с тэгом alt бордюром и всё. что с alt и title сделать полупрозрачным
+   $('img[alt]').addClass('жырныйБордер').add('img[title]').addClass('полупрозрачные')
+
+** Пример со slice
+   $('*').slice(2,3) - вернёт набор с третьим элементом
+   $('*').slice(0,4) - вернёт набор из первых 4-х элементов
+   $('*').slice(4) - вернёт все элементы кроме 4-х первых
+   
