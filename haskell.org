@@ -228,7 +228,7 @@ mytest =
 
 * Операторы
 ** infixr
-  infixr(l) 0 $ - 
+  infixr[lr] 0 $ - 
   r - правая ассоциативность 
   l - левая 
   0 - приоритет 
@@ -242,3 +242,4 @@ mytest =
 * Прагмы
   {-# Language FlexibleContexts, FlexibleInstances, UndecidableInstances #-}
   {-# Language Pragma1, Pragma2 ... #-} - в начале модуля до всего вообще
+  
