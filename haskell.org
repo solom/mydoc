@@ -45,7 +45,7 @@
 
    twice :: Group a => a -> a
    twice a = a + a
-
+   
    isE :: (Group a, Eq a) => a -> Bool
    isE x = (x == e)
 
@@ -133,7 +133,7 @@
 	show Tuesday = "Tue"
 	...
     instance Show Time where
-        show (Time h m s) = show h ++ ":" ++ show m ++ ":" ++ show s
+        show (Time h m s) = (show h) ++ ":" ++ (show m) ++ ":" ++ (show s)
 *** Пример с Group
     
     class Group a where
@@ -228,7 +228,7 @@ mytest =
 
 * Операторы
 ** infixr
-  infixr[lr] 0 $ - 
+  infix[lr] 0 $ - 
   r - правая ассоциативность 
   l - левая 
   0 - приоритет 
