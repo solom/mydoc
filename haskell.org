@@ -1,4 +1,6 @@
-Подсказка по HASKELL
+#+title: Подсказка по HASKELL
+#+author: Alex Solomin
+
 
 * Интерпретатор
   :l <имя модуля> - загрузить модуль
@@ -33,6 +35,7 @@
    import qualified Mod as Foo	Foo.x, Foo.y, Foo.z	(Only qualified names, using new qualifier.)
    import qualified Mod as Foo (x,y)	Foo.x, Foo.y	(Only qualified versions of x and y, using new qualifier)
 ** Полный пример с Group
+#+begin_src haskell
    module Group
    where
 
@@ -53,6 +56,7 @@
        e = True
        (+) a b = and [a, b]
        inv a = not a
+#+end_src
 * Типы
   Bool -- логические (False True)
   Char -- буква, пришется в одинарных кавычках
@@ -63,13 +67,14 @@
   Float -- Числа с одинарной точностью
   Rational -- Дробные числа.
 * Примеры определения данных
+  #+begin_src haskell
   data Date = Date Year Month Day -- произведение (Date - конструктор, остальное - значения)
   
-  можно так: 
+  -- можно так: 
   
   data Date = Date Int Int Int -- цулыми числами определяем год, месяц  день
   
-  По первому примеру (продолжение)
+  -- По первому примеру (продолжение)
   
   data Month = January | February | ... -- (сумма типов) каждому месяцу - название-конструктор и все типы Month
   
@@ -83,6 +88,7 @@
 
   data Some a = Some a
       deriving (Show, Eq, Ord) - тип данных есть экземпляр классов типов в скобках
+  #+end_src
 ** Пример с типом Bool
    data Bool = False | True
    
@@ -100,30 +106,35 @@
 * Классы типов
 ** Примеры с классами типов
 *** Eq
+#+begin_src haskell
    class Eq a where
       (==) :: a -> a -> Bool
       (/=) :: a -> a-> Bool -- в классах типов только типы
+#+end_src 
 *** Show
+#+begin_src haskell
    class Show a where
        show :: a -> String
-
+#+end_src
 ** Суперклассы
+#+begin_src haskell
   class IsPerson a
   class IsPerson a => HasName a where
       name :: a -> String
-  Тут класс HasName является подклассом IsPerson
-  Мы можем сделать экземпляр класса HasName только для типов из IsPerson
+  -- Тут класс HasName является подклассом IsPerson
+  -- Мы можем сделать экземпляр класса HasName только для типов из IsPerson
+#+end_src
 ** Экземпляры классов типов
 *** Пример с Eq
-    
+#+begin_src haskell    
     instance Eq Bool where
         (==) True True = True
 	(==) False False = True
 	(==) _ _ = False
 	(/=) a b = not (a == b)
-
+#+end_src 
 *** Пример с Show
-    
+#+begin_src haskell
     instance Show Bool  where
         show True = "True"
 	show False = "False"
@@ -131,11 +142,12 @@
     instance Show Week where
         show Monday = "Mon"
 	show Tuesday = "Tue"
-	...
+	-- ...
     instance Show Time where
         show (Time h m s) = (show h) ++ ":" ++ (show m) ++ ":" ++ (show s)
+#+end_src
 *** Пример с Group
-    
+#+begin_src haskell    
     class Group a where
         e :: a
 	(+) :: a -> a
@@ -145,8 +157,9 @@
         e = True
 	(+) a b = and [a, b] -- and working only
 	inv a = not a
-	
+#+end_src	
 *** Пример с Nat
+#+begin_src haskell
     instance Num Nat where
         (.+) a Zero = a -- .+ = +
         (+) a (Succ b) = Succ (a + b)
@@ -158,8 +171,9 @@
         signum _ = Succ Zero
         fromInteger 0 = Zero
         fromInteger n = Succ (fromInteger (n - 1))
-
+#+end_src
 *** Пример с Addable
+#+begin_src haskell
     class Addable a where
         (<+>) :: a -> a -> a
 
@@ -169,7 +183,9 @@
     instance Addable Nym where
         (<+>) (Nyma a) (Nyma b) = Nyma (a ++ b)
         (<+>) (Nymi a) (Nymi b) = Nymi (a + b)
+#+end_src
 *** Пример с монадой Identity
+#+begin_src haskell
     newtype Identity a = Identity {runIden :: a}
     --  deriving Show
 
@@ -197,8 +213,9 @@
         do
             val <- n
             return (val + 2)
-
+#+end_src
 *** Пример с Testr like Reader
+#+begin_src haskell
 data Testr r a = Tdr {runTestr :: (r -> a)}
   
 instance Functor (Testr r) where
@@ -225,7 +242,7 @@ mytest =
   do
     e <- ask
     return ((fst . head) e)
-
+#+end_src
 * Операторы
 ** infixr
   infix[lr] 0 $ - 
